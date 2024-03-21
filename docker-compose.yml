@@ -1,6 +1,6 @@
 services:
   jenkins:
-    image: jenkins/jenkins:latest
+    image: Dockerfile
     ports:
       - "7000:8080"
     volumes:
