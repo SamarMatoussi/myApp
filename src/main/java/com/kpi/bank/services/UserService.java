@@ -3,6 +3,7 @@ package com.kpi.bank.services;
 import com.kpi.bank.entites.ChangePasswordRequest;
 import com.kpi.bank.entites.User;
 import com.kpi.bank.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,4 +36,14 @@ public class UserService {
         // save the new password
         repository.save(user);
     }
+    public User fetchUser(String email) {
+        return repository.existsByEmail(email)
+                ? repository.findByEmail(email).get()
+                : null;
+    }
+
+    public static String applicationUrl(HttpServletRequest request) {
+        return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    }
+
 }

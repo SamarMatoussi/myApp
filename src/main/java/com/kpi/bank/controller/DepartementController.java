@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @RestController
-@RequestMapping("/departement")
+@RequestMapping("/api/v1/departement")
 @PreAuthorize("hasRole('ADMIN')")
 public class DepartementController {
     @Autowired

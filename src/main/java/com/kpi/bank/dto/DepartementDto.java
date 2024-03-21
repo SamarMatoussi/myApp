@@ -1,6 +1,5 @@
 package com.kpi.bank.dto;
 
-import com.kpi.bank.entites.Client;
 import com.kpi.bank.entites.Departement;
 import com.kpi.bank.form.DepartementFrom;
 

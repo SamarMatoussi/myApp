@@ -3,21 +3,29 @@ package com.kpi.bank.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kpi.bank.config.JwtService;
+import com.kpi.bank.dto.Response;
+import com.kpi.bank.entites.Role;
 import com.kpi.bank.entites.User;
+import com.kpi.bank.listener.RegistrationCompleteEvent;
+import com.kpi.bank.repository.UserRepository;
 import com.kpi.bank.token.Token;
 import com.kpi.bank.token.TokenRepository;
 import com.kpi.bank.token.TokenType;
-import com.kpi.bank.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static com.kpi.bank.services.UserService.applicationUrl;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +35,37 @@ public class AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
+  private final ApplicationEventPublisher publisher;
 
-  public AuthenticationResponse register(RegisterRequest request) {
+  public ResponseEntity<Response> register(RegisterRequest userRequest, final HttpServletRequest request) {
+
+    boolean userExists = repository.findAll()
+            .stream()
+            .anyMatch(user -> userRequest.getEmail().equalsIgnoreCase(user.getEmail()));
+
+    if (userExists) {
+      return ResponseEntity.badRequest().body(Response.builder()
+              .responseMessage("User with provided email  already exists!")
+              .build());
+    }
     var user = User.builder()
-            .firstname(request.getFirstname())
-            .lastname(request.getLastname())
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .role(request.getRole())
+            .fullname(userRequest.getFullname())
+            .email(userRequest.getEmail())
+            .password(passwordEncoder.encode(userRequest.getPassword()))
+            .role(Role.USER)
+            //.role(request.getRole())
             .build();
     var savedUser = repository.save(user);
-    var jwtToken = jwtService.generateToken(user);
-    var refreshToken = jwtService.generateRefreshToken(user);
-    saveUserToken(savedUser, jwtToken);
-    return AuthenticationResponse.builder()
-            .accessToken(jwtToken)
-            .refreshToken(refreshToken)
-            .build();
+    publisher.publishEvent(new RegistrationCompleteEvent(savedUser, applicationUrl(request)));
+
+    return new ResponseEntity<>(
+            Response.builder()
+
+                    .responseMessage("Success! Please, check your email to complete your registration")
+                    .email(savedUser.getEmail())
+                    .build(),
+            HttpStatus.CREATED
+    );
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -94,7 +116,7 @@ public class AuthenticationService {
     final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     final String refreshToken;
     final String userEmail;
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
       return;
     }
     refreshToken = authHeader.substring(7);
@@ -113,9 +135,5 @@ public class AuthenticationService {
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
       }
     }
-  }
-
-  public boolean existsByEmail(String email) {
-    return repository.existsByEmail(email);
   }
 }

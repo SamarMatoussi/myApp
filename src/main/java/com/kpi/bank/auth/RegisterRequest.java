@@ -3,7 +3,6 @@ package com.kpi.bank.auth;
 import com.kpi.bank.entites.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,10 +16,8 @@ import lombok.NoArgsConstructor;
 public class RegisterRequest {
   @NotBlank
   @Size(max=20)
-  private String firstname;
-  @NotBlank
-  @Size(max=20)
-  private String lastname;
+  private String fullname;
+
   @NotBlank
   @Size(max = 50)
   @Email

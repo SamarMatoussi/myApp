@@ -24,12 +24,29 @@ public enum Role {
                   ADMIN_CREATE,
                   ADMIN_DISABLE,
                   ADMIN_ENABLE
+                 /* AGENT_READ,
+                  AGENT_UPDATE,
+                  AGENT_DELETE,
+                  AGENT_CREATE*/
 
 
           )
   ),
 
+/*  AGENT(
+          Set.of(
+                  AGENT_READ,
+                  AGENT_UPDATE,
+                  AGENT_DELETE,
+                  AGENT_CREATE
+          )
+  )  ,
+  client(
+          Set.of(
+                  client_READ
 
+          )
+  )*/
   ;
 
   @Getter
