@@ -1,13 +1,7 @@
-pipeline {
-    agent any
+version: '3.8'
 
-    stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    checkout([$class: 'GitSCM', branches: [[name: 'master']], userRemoteConfigs: [[url: 'https://github.com/SamarMatoussi/myApp.git']]])
-                }
-            }
-        }
-    }
-}
+services:
+  jenkins:
+    image: jenkins/jenkins
+    restart: always
+    privileged: true
