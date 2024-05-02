@@ -1,36 +1,16 @@
-services:
-  jenkins:
-    image: Dockerfile
-    ports:
-      - "8000:8080"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-    networks:
-      - my-network
+pipeline {
+    agent any
 
-  nexus:
-    image: sonatype/nexus3
-    ports:
-      - "8081:8081"
-    volumes:
-      - nexus_data:/nexus-data
-    networks:
-      - my-network
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                   
 
-  sonarqube:
-    image: sonarqube:latest
-    ports:
-      - "9000:9000"
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-    networks:
-      - my-network
+                    checkout([$class: 'GitSCM', branches: [[name: 'SamarMatoussi']], userRemoteConfigs: [[url: gitHubUrl]]])
+                }
+            }
+        }
 
-
-networks:
-  my-network:
-
-volumes:
-  jenkins_home:
-  nexus_data:
-  sonarqube_data:
+    }
+}
