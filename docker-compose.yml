@@ -5,12 +5,9 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                   
-
-                    checkout([$class: 'GitSCM', branches: [[name: 'SamarMatoussi']], userRemoteConfigs: [[url: gitHubUrl]]])
+                    checkout([$class: 'GitSCM', branches: [[name: 'master']], userRemoteConfigs: [[url: 'https://github.com/SamarMatoussi/myApp.git']]])
                 }
             }
         }
-
     }
 }
